@@ -24,7 +24,7 @@ const analyzeImage = async (filePath) => {
             },
             body: JSON.stringify({
                 model: 'llama3.2-vision:11b',
-                prompt: 'Analyze this image. Provide keywords and category in the format "Keywords: word1, word2, word3 Category: categoryName"',
+                prompt: 'provide keywords (max 40) and category in the format "Keywords: word1, word2, word3; Category: categoryName" , do not say anyhting else',
                 images: [base64Image],
                 stream: false
             })
@@ -35,10 +35,16 @@ const analyzeImage = async (filePath) => {
         }
 
         const data = await response.json();
-        console.log('Raw API response:', data);
+        console.log('API response:', data.response);
+        
+        // Extract keywords and category from the response
+        const analysis = parseResponse(data.response); // Ensure correct data is passed
+        // console.log(`Analysis for ${filePath}:`, analysis);
 
-        const analysis = parseResponse(data);
-        return analysis;
+        return {
+            keywords: analysis.keywords,
+            category: analysis.category
+        };
     } catch (error) {
         console.error(`Error analyzing image (${filePath}):`, error.message);
         return {
@@ -49,10 +55,10 @@ const analyzeImage = async (filePath) => {
 };
 
 // Helper function to parse the model's response
-const parseResponse = (response) => {
+const parseResponse = (responseText) => { // Rename parameter to indicate it's a string
     try {
         // Parse the response text to extract keywords and category
-        const text = response.response || '';
+        const text = responseText || '';
         
         // Extract keywords (assuming model returns them in a structured way)
         const keywordsMatch = text.match(/keywords:(.+?)(?=category:|$)/i);
