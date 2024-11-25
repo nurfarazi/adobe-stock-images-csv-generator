@@ -11,9 +11,11 @@ const maxFileSize = 5 * 1024 * 1024; // 5MB
 const csvWriter = createObjectCsvWriter({
   path: "output.csv",
   header: [
-    { id: "fileName", title: "File Name" },
-    { id: "keyword", title: "Keyword" },
+    { id: "fileName", title: "Filename" },
+    { id: "title", title: "Title" },
+    { id: "keyword", title: "Keywords" },
     { id: "category", title: "Category" },
+    { id : "releases", title: "Releases" },
   ],
 });
 
