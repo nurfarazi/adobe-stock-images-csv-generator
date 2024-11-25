@@ -19,6 +19,8 @@ const csvWriter = createObjectCsvWriter({
   ],
 });
 
+const startTime = Date.now();
+
 async function processImages() {
   try {
      // Check if the folder exists
@@ -36,6 +38,7 @@ async function processImages() {
 
     for (const file of imageFiles) {
       const filePath = path.join(folderPath, file);
+      const fileStartTime = Date.now();
 
       // Resize down to 10% of original size
       const image = await fs.readFile(filePath);
@@ -58,6 +61,9 @@ async function processImages() {
         releases:  "",
       });
 
+      const fileEndTime = Date.now();
+      console.log(`Processed ${file} in ${fileEndTime - fileStartTime}ms`);
+
       if (records.length >= maxLines) break;
     }
 
@@ -74,4 +80,7 @@ async function processImages() {
   }
 }
 
-processImages();
+processImages().then(() => {
+  const endTime = Date.now();
+  console.log(`Total execution time: ${endTime - startTime}ms`);
+});
