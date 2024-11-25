@@ -36,7 +36,7 @@ const analyzeImage = async (filePath) => {
     }
 
     const data = await response.json();
-    console.log("API response:", data.response);
+    //console.log("API response:", data.response);
 
     // Extract keywords and category from the response
     const analysis = parseResponse(data.response); // Ensure correct data is passed
