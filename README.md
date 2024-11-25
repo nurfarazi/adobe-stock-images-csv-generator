@@ -28,7 +28,7 @@ This project is a tool to generate CSV files for Adobe Stock images. It helps st
 1. Place your images in the `images` folder.
 2. Run the generator script:
    ```sh
-   npm run generate
+   node index.js
    ```
 3. The generated CSV file will be saved in the `output` folder.
 
