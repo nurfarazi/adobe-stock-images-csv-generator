@@ -25,7 +25,7 @@ const analyzeImage = async (filePath) => {
       body: JSON.stringify({
         model: "llama3.2-vision:11b",
         prompt:
-          'Provide a short description of what the asset represents in the format "Title: description", keywords (max 50) in the format "Keywords: word1, word2, word3, ...", and category in the format "Category: categoryName". Do not say anything else.',
+          'Provide a description (max 200 characters) of what the asset represents in the format "Title: description", keywords (max 50) in the format "Keywords: word1, word2, word3, ...", and category in the format "Category: categoryName". Do not say anything else.',
         images: [base64Image],
         stream: false,
       }),
@@ -43,14 +43,14 @@ const analyzeImage = async (filePath) => {
     // console.log(`Analysis for ${filePath}:`, analysis);
 
     return {
-        title: analysis.title,
+      title: analysis.title,
       keywords: analysis.keywords,
       category: analysis.category,
     };
   } catch (error) {
     console.error(`Error analyzing image (${filePath}):`, error.message);
     return {
-        title: '',
+      title: "",
       keywords: [],
       category: "Uncategorized",
     };
@@ -59,32 +59,31 @@ const analyzeImage = async (filePath) => {
 
 // Helper function to parse the model's response
 const parseResponse = (responseText) => {
-    try {
-        // Parse the response text to extract title, keywords, and category
-        const text = responseText || '';
-        
-        // Extract title
-        const titleMatch = text.match(/Title:\s*(.+?)(?=Keywords:|$)/i);
-        const title = titleMatch 
-            ? titleMatch[1].trim()
-            : '';
+  try {
+    // Parse the response text to extract title, keywords, and category
+    const text = responseText || "";
 
-        // Extract keywords
-        const keywordsMatch = text.match(/Keywords:\s*(.+?)(?=Category:|$)/i);
-        const keywords = keywordsMatch 
-            ? keywordsMatch[1].trim().split(',').map(k => k.trim())
-            : [];
+    // Extract title
+    const titleMatch = text.match(/Title:\s*(.+?)(?=Keywords:|$)/i);
+    const title = titleMatch ? titleMatch[1].trim() : "";
 
-        // Extract category
-        const categoryMatch = text.match(/Category:\s*(.+?)(?=$)/i);
-        const category = categoryMatch 
-            ? categoryMatch[1].trim() 
-            : 'Uncategorized';
+    // Extract keywords
+    const keywordsMatch = text.match(/Keywords:\s*(.+?)(?=Category:|$)/i);
+    const keywords = keywordsMatch
+      ? keywordsMatch[1]
+          .trim()
+          .split(",")
+          .map((k) => k.trim())
+      : [];
 
-        return { title, keywords, category };
-    } catch (error) {
-        console.error('Error parsing response:', error);
-        return { title: '', keywords: [], category: 'Uncategorized' };
-    }
+    // Extract category
+    const categoryMatch = text.match(/Category:\s*(.+?)(?=$)/i);
+    const category = categoryMatch ? categoryMatch[1].trim() : "Uncategorized";
+
+    return { title, keywords, category };
+  } catch (error) {
+    console.error("Error parsing response:", error);
+    return { title: "", keywords: [], category: "Uncategorized" };
+  }
 };
 module.exports = analyzeImage;
