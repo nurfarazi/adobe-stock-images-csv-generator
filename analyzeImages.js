@@ -13,7 +13,7 @@ const analyzeImage = async (filePath) => {
       console.log("Checking available models...");
       const modelsResponse = await fetch("http://localhost:11434/api/tags");
       const modelsData = await modelsResponse.json();
-      console.log('Available models:', modelsData);
+      // console.log('Available models:', modelsData);
     } catch (error) {
       console.error("Error checking models:", error.message);
       throw new Error("Cannot connect to Ollama API");
@@ -29,7 +29,7 @@ const analyzeImage = async (filePath) => {
       body: JSON.stringify({
         model: "llama3.2-vision:11b",
         prompt:
-          'Provide a description (max 200 characters) of what the asset represents in the format "Title: description", keywords (max 50) in the format "Keywords: word1, word2, word3, ...", and category in the format "Category: categoryName". Do not say anything else.',
+          'Provide a description (max 200 characters) of what the asset represents in the format "Title: description", keywords (max 50, min 40) in the format "Keywords: word1, word2, word3, ...", and category in the format "Category: categoryName". Do not say anything else. Do not include any other information.',
         images: [base64Image],
         stream: false,
       }),
@@ -78,7 +78,7 @@ const parseResponse = (responseText) => {
       ? keywordsMatch[1]
           .trim()
           .split(",")
-          .map((k) => k.trim())
+          .map((k) => k.trim().replace(/^\*\*/, "")) // Remove double stars
       : [];
 
     // Extract category

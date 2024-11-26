@@ -57,7 +57,7 @@ async function processImages() {
       // Resize down to 10% of original size
       const image = await fs.readFile(filePath);
       const metadata = await sharp(image).metadata();
-      const newWidth = Math.round(metadata.width * 0.5);
+      const newWidth = Math.round(metadata.width * 0.3);
 
       if (newWidth > 0) {
         const resizedImage = await sharp(image).resize({ width: newWidth }).toBuffer();
