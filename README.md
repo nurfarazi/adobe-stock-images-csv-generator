@@ -32,6 +32,18 @@ This project is a tool to generate CSV files for Adobe Stock images. It helps st
    ```
 3. The generated CSV file will be saved in the `output` folder.
 
+## Ollama Setup
+
+To use the image analysis feature, you need to set up the Ollama API and ensure the vision model is available.
+
+1. **Install Ollama API**: Follow the instructions on the [Ollama API documentation](https://ollama.com/docs) to install and set up the API on your local machine.
+
+2. **Start the Ollama API**: Ensure the Ollama API is running on `http://localhost:11434`.
+
+3. **Load the Vision Model**: The script uses the `llama3.2-vision:11b` model. Make sure this model is available and loaded in your Ollama API setup.
+
+4. **Check Available Models**: You can check the available models by making a GET request to `http://localhost:11434/api/tags`. The script includes a check for available models before analyzing the image.
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request.
