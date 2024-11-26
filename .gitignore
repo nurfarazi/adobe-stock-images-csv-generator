@@ -5,4 +5,5 @@ yarn-error.log
 .env
 .DS_Store
 images/*
+resized-images/*
 *.csv
