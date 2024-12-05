@@ -1,5 +1,6 @@
 const fs = require("fs").promises;
 const fetch = require("node-fetch");
+const { prompt } = require("./promptText");
 
 const analyzeImage = async (filePath) => {
   console.log(`Starting analysis for image: ${filePath}`);
@@ -28,11 +29,7 @@ const analyzeImage = async (filePath) => {
       },
       body: JSON.stringify({
         model: "llama3.2-vision:latest",
-        prompt: `
-          Provide the output in the following exact format:
-"##Title: [Description of the image in 200 characters or but not less than 140 character], ##Keywords: [Comma-separated list of 45-50 keywords], ##Category: [Single category name]"
-Do not include any other information or text outside this structure.
-          `,
+        prompt: `${prompt.prompt}`,
         images: [base64Image],
         stream: false,
       }),
