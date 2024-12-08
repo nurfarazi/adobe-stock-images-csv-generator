@@ -20,13 +20,19 @@ module.exports = {
   csvFileCreatedSuccessfully: "CSV file created successfully.",
   errorProcessingImages: "Error processing images",
   totalExecutionTime: "Total execution time",
-  prompt: `
-    Provide the output in the following exact format:
-"
-##Title: [Description of the image in max 200 characters or but not less than 140 character], 
-##Keywords: [Comma-separated list of 45-50 SEO friendly keywords], 
-##Category: [Single category name]"
+  prompt: `Please analyze the image and provide as much detail as possible, 
+  including the camera angle, focus, and any other relevant information. very detailed description of the image. minimul 200 words, no text style.
+  `,
+  promptForDolphin: `
+Please provide the output strictly in the following format:
 
-Do not include any other information or text outside this structure.
-    `,
+##Title: [Provide a description of the image between 140 and 200 characters, making it concise yet descriptive, SEO friendly and engaging.],  
+##Keywords: [Provide a comma-separated list of 45-50 SEO-friendly keywords. Include not only literal descriptors of the image but also keywords reflecting its potential use, marketing value, and abstract representation], 
+
+-Only include the structured information within this exact format.
+-Do not add any text, explanations, or notes outside of this format.
+-Use the details provided below to construct the response.
+
+Image Details:
+`
 };
