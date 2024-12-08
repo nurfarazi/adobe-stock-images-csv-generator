@@ -2,6 +2,7 @@ const fs = require("fs-extra");
 const path = require("path");
 const { createObjectCsvWriter } = require("csv-writer");
 const sharp = require("sharp");
+const { Worker, isMainThread, parentPort, workerData } = require("worker_threads");
 const analyzeImage = require("./analyzeImages");
 const promptText = require("./promptText");
 
@@ -21,6 +22,36 @@ const csvWriter = createObjectCsvWriter({
 });
 
 const startTime = Date.now();
+
+async function processImage(file) {
+  const filePath = path.join(folderPath, file);
+  const ext = path.extname(file);
+  const resizedFilePath = path.join(resizedFolderPath, path.basename(file, ext) + ext);
+  const fileStartTime = Date.now();
+
+  // Resize down to 10% of original size
+  const image = await fs.readFile(filePath);
+  const metadata = await sharp(image).metadata();
+  const newWidth = Math.round(metadata.width * 0.1);
+
+  if (newWidth > 0) {
+    const resizedImage = await sharp(image).resize({ width: newWidth }).toFormat(metadata.format).toBuffer();
+    await fs.writeFile(resizedFilePath, resizedImage);
+  }
+
+  const analysis = await analyzeImage(resizedFilePath);
+
+  const fileEndTime = Date.now();
+  console.log(`✅ ${promptText.processed} ${file} ${promptText.in} ${(fileEndTime - fileStartTime) / 1000}s`);
+
+  return {
+    fileName: file,
+    title: analysis.title || "",
+    keyword: analysis.keywords.join(", ") || "",
+    category: analysis.category || "",
+    releases: "",
+  };
+}
 
 async function processImages() {
   try {
@@ -46,41 +77,18 @@ async function processImages() {
     console.log(`${promptText.imageFilesFiltered}: ${imageFiles.length} ${promptText.imageFilesFound}`);
 
     const records = [];
-
-    await Promise.all(imageFiles.map(async (file) => {
-      console.log(`${promptText.processingFile}: ${file}`);
-      const filePath = path.join(folderPath, file);
-      const ext = path.extname(file); // Get the file extension
-      const resizedFilePath = path.join(resizedFolderPath, path.basename(file, ext) + ext); // New path for resized image with original extension
-      const fileStartTime = Date.now();
-
-      // Resize down to 10% of original size
-      const image = await fs.readFile(filePath);
-      const metadata = await sharp(image).metadata();
-      const newWidth = Math.round(metadata.width * 0.1);
-
-      if (newWidth > 0) {
-        const resizedImage = await sharp(image).resize({ width: newWidth }).toFormat(metadata.format).toBuffer(); // Keep original format
-        await fs.writeFile(resizedFilePath, resizedImage); // Write to new path
-        console.log(`${promptText.resizedImageWritten}: ${resizedFilePath}`);
-      } else {
-        console.warn(`${promptText.skippingResize}: ${file} ${promptText.invalidWidth}`);
-      }
-
-      const analysis = await analyzeImage(resizedFilePath); // Analyze the resized image
-      console.log(`${promptText.imageAnalyzed}: ${file}`);
-
-      records.push({
-        fileName: file,
-        title: analysis.title || "",
-        keyword: analysis.keywords.join(", ") || "", // Use metadata.keywords
-        category: analysis.category || "",
-        releases:  "",
+    const workerPromises = imageFiles.map((file) => {
+      return new Promise((resolve, reject) => {
+        const worker = new Worker(__filename, {
+          workerData: { file }
+        });
+        worker.on("message", resolve);
+        worker.on("error", reject);
       });
+    });
 
-      const fileEndTime = Date.now();
-      console.log(`✅ ${promptText.processed} ${file} ${promptText.in} ${(fileEndTime - fileStartTime) / 1000}s`);
-    }));
+    const results = await Promise.all(workerPromises);
+    results.forEach((result) => records.push(result));
 
     await csvWriter.writeRecords(records);
 
@@ -95,11 +103,15 @@ async function processImages() {
   }
 }
 
-async function processImagesInParallel() {
-  const startTime = Date.now();
-  await processImages();
-  const endTime = Date.now();
-  console.log(`${promptText.totalExecutionTime}: ${(endTime - startTime) / 1000}s`);
-}
+if (isMainThread) {
+  async function processImagesInParallel() {
+    const startTime = Date.now();
+    await processImages();
+    const endTime = Date.now();
+    console.log(`${promptText.totalExecutionTime}: ${(endTime - startTime) / 1000}s`);
+  }
 
-processImagesInParallel();
+  processImagesInParallel();
+} else {
+  processImage(workerData.file).then((result) => parentPort.postMessage(result)).catch((error) => parentPort.postMessage({ error: error.message }));
+}
