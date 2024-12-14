@@ -26,8 +26,8 @@ module.exports = {
   promptForDolphin: `
 Please provide the output strictly in the following format:
 
-##Title: [Provide a description of the image between 140 and 200 characters, making it concise yet descriptive, SEO friendly and engaging.],  
-##Keywords: [Provide a comma-separated list of 45-50 SEO-friendly keywords. Include not only literal descriptors of the image but also keywords reflecting its potential use, marketing value, and abstract representation], 
+##Title: [Provide a description of the image between 140 and 180 characters, making it concise yet descriptive, SEO friendly and engaging.],  
+##Keywords: [Provide a comma-separated list of 45 SEO-friendly keywords. Include not only literal descriptors of the image but also keywords reflecting its potential use, marketing value, and abstract representation], 
 
 -Only include the structured information within this exact format.
 -Do not add any text, explanations, or notes outside of this format.

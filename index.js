@@ -6,6 +6,11 @@ const { Worker, isMainThread, parentPort, workerData } = require("worker_threads
 const analyzeImage = require("./analyzeImages");
 const promptText = require("./promptText");
 
+// Enable GPU support in sharp
+sharp.cache(false);
+sharp.simd(true);
+sharp.concurrency(0);
+
 const folderPath = "./images"; // Change this to your folder path
 const resizedFolderPath = "./resized-images"; // New folder for resized images
 const maxFileSize = 5 * 1024 * 1024; // 5MB
